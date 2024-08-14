@@ -117,6 +117,7 @@
             }
         ];
 
+        let shuffledQuestions = [];
         let currentQuestionIndex = 0;
         let selectedOption = null;
 
@@ -132,8 +133,16 @@
         const startBtn = document.querySelector('.start-btn');
         const resultMessageEl = document.querySelector('.result-message');
 
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
         function loadQuestion() {
-            const currentQuestion = questions[currentQuestionIndex];
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
             questionEl.innerText = currentQuestion.question;
             optionsEl.innerHTML = '';
             currentQuestion.options.forEach(option => {
@@ -153,7 +162,7 @@
 
         function handleSubmit() {
             if (selectedOption) {
-                const isCorrect = selectedOption.innerText === questions[currentQuestionIndex].correct;
+                const isCorrect = selectedOption.innerText === shuffledQuestions[currentQuestionIndex].correct;
                 showResultScreen(isCorrect);
             } else {
                 alert('Please select an option!');
@@ -169,7 +178,7 @@
                 restartBtn.style.display = 'none'; // Hide the restart button
                 quitBtn.style.display = 'none'; // Hide the quit button
             } else {
-                resultMessageEl.innerText = `You lose! The correct answer was ${questions[currentQuestionIndex].correct}.`;
+                resultMessageEl.innerText = `You lose! The correct answer was ${shuffledQuestions[currentQuestionIndex].correct}.`;
                 nextBtn.style.display = 'none'; // Hide the next button
                 restartBtn.style.display = 'inline-block'; // Show the restart button
                 quitBtn.style.display = 'inline-block'; // Show the quit button
@@ -178,7 +187,7 @@
 
         function handleNext() {
             currentQuestionIndex++;
-            if (currentQuestionIndex < questions.length) {
+            if (currentQuestionIndex < shuffledQuestions.length) {
                 loadQuestion();
                 selectedOption = null;
                 resultContainer.style.display = 'none'; // Hide the result screen
@@ -190,6 +199,7 @@
         }
 
         function restartQuiz() {
+            shuffledQuestions = shuffleArray([...questions]); // Shuffle and copy the questions
             currentQuestionIndex = 0;
             goToQuizScreen();
             loadQuestion();
@@ -208,7 +218,7 @@
         }
 
         startBtn.addEventListener('click', () => {
-            restartQuiz(); // Start the quiz
+            restartQuiz(); // Start the quiz with shuffled questions
         });
 
         submitBtn.addEventListener('click', handleSubmit);
