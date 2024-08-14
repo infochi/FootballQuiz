@@ -16,7 +16,7 @@
             align-items: center;
             height: 100vh;
         }
-        .quiz-container, .result-container, .start-container {
+        .quiz-container, .result-container, .start-container, .final-container {
             background-color: #34495e;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
@@ -67,6 +67,10 @@
         .next-btn:hover, .restart-btn:hover, .quit-btn:hover {
             background-color: #2980b9;
         }
+        .final-container .score-message {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -89,6 +93,14 @@
     <div class="result-container">
         <h1 class="result-message"></h1>
         <button class="next-btn">Next Question</button>
+        <button class="restart-btn">Restart Quiz</button>
+        <button class="quit-btn">Quit</button>
+    </div>
+
+    <!-- Final Score Screen -->
+    <div class="final-container">
+        <h1>Final Score</h1>
+        <div class="score-message"></div>
         <button class="restart-btn">Restart Quiz</button>
         <button class="quit-btn">Quit</button>
     </div>
@@ -120,18 +132,22 @@
         let shuffledQuestions = [];
         let currentQuestionIndex = 0;
         let selectedOption = null;
+        let score = 0;
+        let questionsAnswered = 0;
 
         const startContainer = document.querySelector('.start-container');
         const quizContainer = document.querySelector('.quiz-container');
         const resultContainer = document.querySelector('.result-container');
+        const finalContainer = document.querySelector('.final-container');
         const questionEl = document.querySelector('.question');
         const optionsEl = document.querySelector('.options');
         const submitBtn = document.querySelector('.submit-btn');
         const nextBtn = document.querySelector('.next-btn');
-        const restartBtn = document.querySelector('.restart-btn');
-        const quitBtn = document.querySelector('.quit-btn');
+        const restartBtns = document.querySelectorAll('.restart-btn');
+        const quitBtns = document.querySelectorAll('.quit-btn');
         const startBtn = document.querySelector('.start-btn');
         const resultMessageEl = document.querySelector('.result-message');
+        const scoreMessageEl = document.querySelector('.score-message');
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -162,7 +178,11 @@
 
         function handleSubmit() {
             if (selectedOption) {
+                questionsAnswered++;
                 const isCorrect = selectedOption.innerText === shuffledQuestions[currentQuestionIndex].correct;
+                if (isCorrect) {
+                    score++;
+                }
                 showResultScreen(isCorrect);
             } else {
                 alert('Please select an option!');
@@ -175,14 +195,18 @@
             if (isCorrect) {
                 resultMessageEl.innerText = 'Yay! You got it right!';
                 nextBtn.style.display = 'inline-block'; // Show the next button
-                restartBtn.style.display = 'none'; // Hide the restart button
-                quitBtn.style.display = 'none'; // Hide the quit button
+                restartBtns[0].style.display = 'none'; // Hide the restart button
+                quitBtns[0].style.display = 'none'; // Hide the quit button
             } else {
                 resultMessageEl.innerText = `You lose! The correct answer was ${shuffledQuestions[currentQuestionIndex].correct}.`;
-                nextBtn.style.display = 'none'; // Hide the next button
-                restartBtn.style.display = 'inline-block'; // Show the restart button
-                quitBtn.style.display = 'inline-block'; // Show the quit button
+                showFinalScore();
             }
+        }
+
+        function showFinalScore() {
+            resultContainer.style.display = 'none';
+            finalContainer.style.display = 'block';
+            scoreMessageEl.innerText = `Your final score is ${score} out of ${questionsAnswered}`;
         }
 
         function handleNext() {
@@ -201,6 +225,8 @@
         function restartQuiz() {
             shuffledQuestions = shuffleArray([...questions]); // Shuffle and copy the questions
             currentQuestionIndex = 0;
+            score = 0;
+            questionsAnswered = 0;
             goToQuizScreen();
             loadQuestion();
         }
@@ -208,11 +234,13 @@
         function goToStartScreen() {
             resultContainer.style.display = 'none';
             quizContainer.style.display = 'none';
+            finalContainer.style.display = 'none';
             startContainer.style.display = 'block';
         }
 
         function goToQuizScreen() {
             resultContainer.style.display = 'none';
+            finalContainer.style.display = 'none';
             startContainer.style.display = 'none';
             quizContainer.style.display = 'block';
         }
@@ -223,8 +251,8 @@
 
         submitBtn.addEventListener('click', handleSubmit);
         nextBtn.addEventListener('click', handleNext);
-        restartBtn.addEventListener('click', restartQuiz);
-        quitBtn.addEventListener('click', goToStartScreen);
+        restartBtns.forEach(btn => btn.addEventListener('click', restartQuiz));
+        quitBtns.forEach(btn => btn.addEventListener('click', goToStartScreen));
 
         goToStartScreen(); // Show the start screen initially
     </script>
