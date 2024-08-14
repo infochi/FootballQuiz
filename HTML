@@ -182,8 +182,14 @@
                 const isCorrect = selectedOption.innerText === shuffledQuestions[currentQuestionIndex].correct;
                 if (isCorrect) {
                     score++;
+                    if (currentQuestionIndex + 1 < shuffledQuestions.length) {
+                        showResultScreen(true);
+                    } else {
+                        showFinalScore(true); // Show final screen if all questions are answered
+                    }
+                } else {
+                    showFinalScore(false); // Show final screen on incorrect answer
                 }
-                showResultScreen(isCorrect);
             } else {
                 alert('Please select an option!');
             }
@@ -197,16 +203,18 @@
                 nextBtn.style.display = 'inline-block'; // Show the next button
                 restartBtns[0].style.display = 'none'; // Hide the restart button
                 quitBtns[0].style.display = 'none'; // Hide the quit button
-            } else {
-                resultMessageEl.innerText = `You lose! The correct answer was ${shuffledQuestions[currentQuestionIndex].correct}.`;
-                showFinalScore();
             }
         }
 
-        function showFinalScore() {
+        function showFinalScore(allAnsweredCorrectly) {
+            quizContainer.style.display = 'none';
             resultContainer.style.display = 'none';
             finalContainer.style.display = 'block';
-            scoreMessageEl.innerText = `Your final score is ${score} out of ${questionsAnswered}`;
+            if (allAnsweredCorrectly) {
+                scoreMessageEl.innerText = `Congratulations! You answered all questions correctly! Your score is ${score} out of ${questionsAnswered}`;
+            } else {
+                scoreMessageEl.innerText = `You lose! The correct answer was ${shuffledQuestions[currentQuestionIndex].correct}. Your final score is ${score} out of ${questionsAnswered}`;
+            }
         }
 
         function handleNext() {
@@ -216,9 +224,6 @@
                 selectedOption = null;
                 resultContainer.style.display = 'none'; // Hide the result screen
                 quizContainer.style.display = 'block'; // Show the quiz screen
-            } else {
-                alert('Quiz completed!');
-                goToStartScreen();
             }
         }
 
