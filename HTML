@@ -16,13 +16,14 @@
             align-items: center;
             height: 100vh;
         }
-        .quiz-container {
+        .quiz-container, .result-container, .start-container {
             background-color: #34495e;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
             padding: 20px;
             width: 300px;
             text-align: center;
+            display: none; /* Hidden by default */
         }
         h1 {
             font-size: 24px;
@@ -46,7 +47,7 @@
         .options li:hover {
             background-color: #16a085;
         }
-        .submit-btn {
+        .submit-btn, .next-btn, .restart-btn, .quit-btn, .start-btn {
             background-color: #e74c3c;
             color: white;
             border: none;
@@ -54,38 +55,42 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            display: none; /* Hidden initially */
+            display: inline-block;
+            margin-top: 10px;
         }
-        .submit-btn:hover {
+        .submit-btn:hover, .next-btn:hover, .restart-btn:hover, .quit-btn:hover, .start-btn:hover {
             background-color: #c0392b;
         }
-        .next-btn {
+        .next-btn, .restart-btn, .quit-btn {
             background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-            display: none; /* Hidden initially */
         }
-        .next-btn:hover {
+        .next-btn:hover, .restart-btn:hover, .quit-btn:hover {
             background-color: #2980b9;
         }
     </style>
 </head>
 <body>
+
+    <!-- Start Screen -->
+    <div class="start-container">
+        <h1>Football Quiz</h1>
+        <button class="start-btn">Start Quiz</button>
+    </div>
+
+    <!-- Quiz Screen -->
     <div class="quiz-container">
         <h1>Football Quiz</h1>
-        <div class="question">
-            <!-- The question text will be injected here by JavaScript -->
-        </div>
-        <ul class="options">
-            <!-- The options will be injected here by JavaScript -->
-        </ul>
+        <div class="question"></div>
+        <ul class="options"></ul>
         <button class="submit-btn">Submit</button>
-        <button class="next-btn">Next</button>
+    </div>
+
+    <!-- Result Screen -->
+    <div class="result-container">
+        <h1 class="result-message"></h1>
+        <button class="next-btn">Next Question</button>
+        <button class="restart-btn">Restart Quiz</button>
+        <button class="quit-btn">Quit</button>
     </div>
 
     <script>
@@ -115,10 +120,17 @@
         let currentQuestionIndex = 0;
         let selectedOption = null;
 
+        const startContainer = document.querySelector('.start-container');
+        const quizContainer = document.querySelector('.quiz-container');
+        const resultContainer = document.querySelector('.result-container');
         const questionEl = document.querySelector('.question');
         const optionsEl = document.querySelector('.options');
         const submitBtn = document.querySelector('.submit-btn');
         const nextBtn = document.querySelector('.next-btn');
+        const restartBtn = document.querySelector('.restart-btn');
+        const quitBtn = document.querySelector('.quit-btn');
+        const startBtn = document.querySelector('.start-btn');
+        const resultMessageEl = document.querySelector('.result-message');
 
         function loadQuestion() {
             const currentQuestion = questions[currentQuestionIndex];
@@ -142,11 +154,25 @@
         function handleSubmit() {
             if (selectedOption) {
                 const isCorrect = selectedOption.innerText === questions[currentQuestionIndex].correct;
-                alert(isCorrect ? 'Correct!' : `Wrong! The correct answer is ${questions[currentQuestionIndex].correct}.`);
-                submitBtn.style.display = 'none'; // Hide the submit button
-                nextBtn.style.display = 'inline-block'; // Show the next button
+                showResultScreen(isCorrect);
             } else {
                 alert('Please select an option!');
+            }
+        }
+
+        function showResultScreen(isCorrect) {
+            quizContainer.style.display = 'none';
+            resultContainer.style.display = 'block';
+            if (isCorrect) {
+                resultMessageEl.innerText = 'Yay! You got it right!';
+                nextBtn.style.display = 'inline-block'; // Show the next button
+                restartBtn.style.display = 'none'; // Hide the restart button
+                quitBtn.style.display = 'none'; // Hide the quit button
+            } else {
+                resultMessageEl.innerText = `You lose! The correct answer was ${questions[currentQuestionIndex].correct}.`;
+                nextBtn.style.display = 'none'; // Hide the next button
+                restartBtn.style.display = 'inline-block'; // Show the restart button
+                quitBtn.style.display = 'inline-block'; // Show the quit button
             }
         }
 
@@ -155,18 +181,42 @@
             if (currentQuestionIndex < questions.length) {
                 loadQuestion();
                 selectedOption = null;
-                nextBtn.style.display = 'none'; // Hide the next button
+                resultContainer.style.display = 'none'; // Hide the result screen
+                quizContainer.style.display = 'block'; // Show the quiz screen
             } else {
                 alert('Quiz completed!');
-                currentQuestionIndex = 0;
-                loadQuestion();
+                goToStartScreen();
             }
         }
 
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            goToQuizScreen();
+            loadQuestion();
+        }
+
+        function goToStartScreen() {
+            resultContainer.style.display = 'none';
+            quizContainer.style.display = 'none';
+            startContainer.style.display = 'block';
+        }
+
+        function goToQuizScreen() {
+            resultContainer.style.display = 'none';
+            startContainer.style.display = 'none';
+            quizContainer.style.display = 'block';
+        }
+
+        startBtn.addEventListener('click', () => {
+            restartQuiz(); // Start the quiz
+        });
+
         submitBtn.addEventListener('click', handleSubmit);
         nextBtn.addEventListener('click', handleNext);
+        restartBtn.addEventListener('click', restartQuiz);
+        quitBtn.addEventListener('click', goToStartScreen);
 
-        loadQuestion(); // Load the first question
+        goToStartScreen(); // Show the start screen initially
     </script>
 </body>
 </html>
