@@ -54,9 +54,24 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            display: none; /* Hidden initially */
         }
         .submit-btn:hover {
             background-color: #c0392b;
+        }
+        .next-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            display: none; /* Hidden initially */
+        }
+        .next-btn:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
@@ -64,43 +79,94 @@
     <div class="quiz-container">
         <h1>Football Quiz</h1>
         <div class="question">
-            Who won the FIFA World Cup in 2018?
+            <!-- The question text will be injected here by JavaScript -->
         </div>
         <ul class="options">
-            <li>Brazil</li>
-            <li>France</li>
-            <li>Germany</li>
-            <li>Argentina</li>
+            <!-- The options will be injected here by JavaScript -->
         </ul>
         <button class="submit-btn">Submit</button>
+        <button class="next-btn">Next</button>
     </div>
 
     <script>
-        const options = document.querySelectorAll('.options li');
-        const submitBtn = document.querySelector('.submit-btn');
+        const questions = [
+            {
+                question: "Who won the FIFA World Cup in 2018?",
+                options: ["Brazil", "France", "Germany", "Argentina"],
+                correct: "France"
+            },
+            {
+                question: "Which player has won the most Ballon d'Or awards?",
+                options: ["Cristiano Ronaldo", "Lionel Messi", "Zinedine Zidane", "Ronaldinho"],
+                correct: "Lionel Messi"
+            },
+            {
+                question: "Which country hosted the 2014 FIFA World Cup?",
+                options: ["Brazil", "Germany", "South Africa", "Russia"],
+                correct: "Brazil"
+            },
+            {
+                question: "Which football club has won the most UEFA Champions League titles?",
+                options: ["Manchester United", "Real Madrid", "Bayern Munich", "Liverpool"],
+                correct: "Real Madrid"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
         let selectedOption = null;
 
-        options.forEach(option => {
-            option.addEventListener('click', () => {
-                if (selectedOption) {
-                    selectedOption.style.backgroundColor = '#1abc9c';
-                }
-                option.style.backgroundColor = '#f39c12';
-                selectedOption = option;
-            });
-        });
+        const questionEl = document.querySelector('.question');
+        const optionsEl = document.querySelector('.options');
+        const submitBtn = document.querySelector('.submit-btn');
+        const nextBtn = document.querySelector('.next-btn');
 
-        submitBtn.addEventListener('click', () => {
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            questionEl.innerText = currentQuestion.question;
+            optionsEl.innerHTML = '';
+            currentQuestion.options.forEach(option => {
+                const li = document.createElement('li');
+                li.innerText = option;
+                li.addEventListener('click', () => {
+                    if (selectedOption) {
+                        selectedOption.style.backgroundColor = '#1abc9c';
+                    }
+                    li.style.backgroundColor = '#f39c12';
+                    selectedOption = li;
+                    submitBtn.style.display = 'inline-block'; // Show the submit button
+                });
+                optionsEl.appendChild(li);
+            });
+        }
+
+        function handleSubmit() {
             if (selectedOption) {
-                if (selectedOption.innerText === 'France') {
-                    alert('Correct! France won the FIFA World Cup in 2018.');
-                } else {
-                    alert('Wrong! The correct answer is France.');
-                }
+                const isCorrect = selectedOption.innerText === questions[currentQuestionIndex].correct;
+                alert(isCorrect ? 'Correct!' : `Wrong! The correct answer is ${questions[currentQuestionIndex].correct}.`);
+                submitBtn.style.display = 'none'; // Hide the submit button
+                nextBtn.style.display = 'inline-block'; // Show the next button
             } else {
                 alert('Please select an option!');
             }
-        });
+        }
+
+        function handleNext() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+                selectedOption = null;
+                nextBtn.style.display = 'none'; // Hide the next button
+            } else {
+                alert('Quiz completed!');
+                currentQuestionIndex = 0;
+                loadQuestion();
+            }
+        }
+
+        submitBtn.addEventListener('click', handleSubmit);
+        nextBtn.addEventListener('click', handleNext);
+
+        loadQuestion(); // Load the first question
     </script>
 </body>
 </html>
